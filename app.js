@@ -20,7 +20,8 @@ $(document).ready(function() {
 
         this.printBoard = function() {
             let curBoard = this.board.map(item => (`--- ${item.join(' ')}`));
-            return curBoard;
+            let boardHTML = curBoard.map(item => `<p>${item}</p>`);
+            return boardHTML;
         };
         
         this.checkMove = function(oldPegIndex, newPegIndex) {
@@ -86,8 +87,8 @@ $(document).ready(function() {
 
     const uiController = {
         gameInit: function(game) {
-            $('#board').text(game.printBoard());    
-
+            $('#board').html(game.printBoard());    
+            $('#gameMessage').text("Make a move");
         }
     }
 
