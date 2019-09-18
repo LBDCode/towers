@@ -86,18 +86,20 @@ $(document).ready(function() {
     };
 
     const uiController = {
-        gameInit: function(game) {
-            $('#board').html(game.printBoard());    
+        gameInit: function(g) {
+            $('#board').html(g.printBoard());    
             $('#gameMessage').text("Make a move");
-        }
+        },
+
     }
 
     const playController = {
         newGame: function(d, p) {
-            const game = new Gameboard(p, d);
+            const game = new Gameboard(d, p);
             game.createBoard();
             uiController.gameInit(game);
         },
+
         
 
 
@@ -110,6 +112,14 @@ $(document).ready(function() {
         playController.newGame(disks, pegs);
         $('#welcomeArea').hide();
     });
+
+    // $('#startGame').on('click', function(event) {
+    //     const oldPef = parseInt($('#pegs').val());
+    //     const newPeg = parseInt($('#disks').val());
+    //     console.log("hi", pegs, disks);
+    //     playController.newGame(disks, pegs);
+    //     $('#welcomeArea').hide();
+    // });
     
 });
 
