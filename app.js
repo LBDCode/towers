@@ -40,7 +40,7 @@ $(document).ready(function() {
                 this.board[newIndex].push(this.board[oldIndex][this.board[oldIndex].length - 1]);
                 this.board[oldIndex].pop();
                 this.moves++;
-                this.printBoard();
+                $('#board').html(this.printBoard());
             } else {
                 console.log('invalid');
             }
@@ -55,11 +55,13 @@ $(document).ready(function() {
             // only return the ones that the disc you want to move would fit on?)
             const topDisk = this.board[peg - 1][this.board[peg - 1].length - 1];
             console.log(`top disk for peg ${peg}: ${topDisk}`);
+            
             let moves = this.board.filter(function(p, index) {
                 if (p.length === 0 || p[p.length - 1] > topDisk) {
                     console.log(`Possible move: disk ${topDisk} from peg ${peg} to peg ${index + 1}`);
                 } 
             });
+            
         };
 
         this.checkWinner = function() {
@@ -72,7 +74,7 @@ $(document).ready(function() {
 
             this.board.map(peg => {
                 if (peg.length > 0) {
-                    peg.reduce((sum, pegAmount) => sum + pegAmount) === this.winningSum ? console.log("you win!") : null;
+                    peg.reduce((sum, pegAmount) => sum + pegAmount) === this.winningSum ? this.win = true : null;
                 }
             });
         };
@@ -82,44 +84,37 @@ $(document).ready(function() {
             this.win = false;
             this.moves = 0;
             this.winningSum = 0;
+            this.createBoard();
+            $('#board').html(this.printBoard());    
+            $('#gameMessage').text("Make a move");
         };
     };
 
-    const uiController = {
-        gameInit: function(g) {
-            $('#board').html(g.printBoard());    
-            $('#gameMessage').text("Make a move");
-        },
 
-    }
-
-    const playController = {
-        newGame: function(d, p) {
-            const game = new Gameboard(d, p);
-            game.createBoard();
-            uiController.gameInit(game);
-        },
-
-        
-
-
-    };
+    var game;
 
     $('#startGame').on('click', function(event) {
         const pegs = parseInt($('#pegs').val());
         const disks = parseInt($('#disks').val());
-        console.log("hi", pegs, disks);
-        playController.newGame(disks, pegs);
+        game = new Gameboard(disks, pegs);
+        game.gameInit();
         $('#welcomeArea').hide();
     });
 
-    // $('#startGame').on('click', function(event) {
-    //     const oldPef = parseInt($('#pegs').val());
-    //     const newPeg = parseInt($('#disks').val());
-    //     console.log("hi", pegs, disks);
-    //     playController.newGame(disks, pegs);
-    //     $('#welcomeArea').hide();
-    // });
+    $('#moveDisk').on('click', function(event) {
+        const oldPeg = parseInt($('#oldPeg').val());
+        const newPeg = parseInt($('#newPeg').val());
+        game.moveDisk(oldPeg, newPeg);
+        game.checkWinner();
+        if (game.win === true) {
+            console.log("you win!");
+        }
+    });
+
+    $('#getHint').on('click', function(event) {
+        const hintPeg = parseInt($('#hintPeg').val());
+        game.possibleMoves(hintPeg);
+    });
     
 });
 
