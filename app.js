@@ -84,14 +84,22 @@ $(document).ready(function() {
     };
 
     $('#startGame').on('click', function(event) {
-        const pegs = parseInt($('#pegs').val());
-        const disks = parseInt($('#disks').val());
-        game = new Gameboard(disks, pegs);
-        game.gameInit();
-        $('#welcomeArea').hide();
-        $('#gameButtons').show();
-        $('#hintArea').show();
-        $('#gameArea').show();
+        const pegs = $('#pegs').val();
+        const disks = $('#disks').val();
+        
+        if (pegs.length < 1 || disks.length < 1 ) {
+            $('#welcomeMessage').text('Please enter the number of pegs and disks you want to use')
+        } else if(parseInt(pegs) > 0 && parseInt(disks) > 0) {
+            game = new Gameboard(parseInt(disks), parseInt(pegs));
+            game.gameInit();
+            $('#welcomeArea').hide();
+            $('#gameButtons').show();
+            $('#hintArea').show();
+            $('#gameArea').show();    
+        } else {
+            $('#welcomeMessage').text('Pegs and Disks values must be integers greater than 0.');
+
+        }
     });
 
     $('#moveDisk').on('click', function(event) {
