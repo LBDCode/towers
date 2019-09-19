@@ -12,7 +12,7 @@ $(document).ready(function() {
         this.board = [];
         this.win = false;
         this.moves = 0;
-        this.winningSum = 0;
+        // this.winningSum = 0;
 
         this.createBoard = function(d = this.disks, p = this.pegs) {
             for (let i= 0; i < p; i++) {
@@ -22,7 +22,7 @@ $(document).ready(function() {
                 this.board[0].push(j);
             }
             
-            this.winningSum = this.board[0].reduce((sum, pegAmount) => sum + pegAmount);
+            // this.winningSum = this.board[0].reduce((sum, pegAmount) => sum + pegAmount);
         };
 
         this.printBoard = function() {
@@ -74,20 +74,15 @@ $(document).ready(function() {
 
         this.checkWinner = function() {
             // refactored reduce method
-            let check = this.board.map(peg => {
-                // if (peg.length === this.disks) {
-                    console.log(peg);
-                    // peg.reduce((sum, pegAmount) => sum + pegAmount);
-                // }
-            });
-            console.log(`check ${check}`);
+            this.win = (this.board.reduce((accumulator, peg) => {
+                    return peg.length === this.disks;
+            }));
         };
 
         this.gameInit = function() {
             this.board = [];
             this.win = false;
             this.moves = 0;
-            this.winningSum = 0;
             this.createBoard();
             
             $('#board').html(this.printBoard());    
@@ -131,7 +126,7 @@ $(document).ready(function() {
         
             game.moveDisk(oldPeg, newPeg);
             game.checkWinner();
-
+            console.log(game.win);
             if (game.win === true) {
                 $('#gameMessage').text(`Congratulations - you won in ${game.moves} moves.`);
             }
