@@ -1,5 +1,10 @@
 $(document).ready(function() {
 
+    $('#gameButtons').hide();
+    $('#hintArea').hide();
+    $('#gameArea').hide();
+    var game;
+
     const Gameboard = function(disks = 5, pegs = 3) {
         this.disks = disks;
         this.pegs = pegs;
@@ -25,53 +30,41 @@ $(document).ready(function() {
         };
         
         this.checkMove = function(oldPegIndex, newPegIndex) {
-            // change this to a filter function per instructions
             let movedDiskValue = this.board[oldPegIndex][this.board[oldPegIndex].length - 1];
             let currentTopDiskValue = this.board[newPegIndex][this.board[newPegIndex].length - 1];
             return (currentTopDiskValue === undefined || currentTopDiskValue - movedDiskValue >= 0) ? true : false;
         };
 
         this.moveDisk = function(oldPeg, newPeg) {
-            // add check for type of old/new peg (must be int), and that the both fall between 1 and # of pegs
             const oldIndex = oldPeg - 1;
             const newIndex = newPeg - 1;
             if(this.checkMove(oldIndex, newIndex)) {
-                console.log('valid move');
                 this.board[newIndex].push(this.board[oldIndex][this.board[oldIndex].length - 1]);
                 this.board[oldIndex].pop();
                 this.moves++;
                 $('#board').html(this.printBoard());
+                $('#gameMessage').text('Make a move!');
+
             } else {
-                console.log('invalid');
+                $('#gameMessage').text(`You cannot move a disk from peg ${oldPeg} to peg ${newPeg}. 
+                  Try a different move, or ask for a hint!`);
             }
         }; 
 
         this.possibleMoves = function(peg) {
-            // There should be a function that given a certain peg, determines which 
-            // other pegs the top disc from that peg can be moved to. In order to complete this 
-            // function, you MUST use a `filter` function at least once (HINT: If the user says 
-            // they want to move a certain disc to another peg, wouldn't it be nice if you had 
-            // a function that could take that disc size and look at all the pegs on the board and 
-            // only return the ones that the disc you want to move would fit on?)
             const topDisk = this.board[peg - 1][this.board[peg - 1].length - 1];
-            console.log(`top disk for peg ${peg}: ${topDisk}`);
-            
-            let moves = this.board.filter(function(p, index) {
-                if (p.length === 0 || p[p.length - 1] > topDisk) {
-                    console.log(`Possible move: disk ${topDisk} from peg ${peg} to peg ${index + 1}`);
+            let movesMessage = '';
+            this.board.filter(function(p, index) {
+                if (topDisk === undefined) {
+                    movesMessage = `There are no disks on peg ${peg}.  No moves possible.`;
+                } else if (p.length === 0 || p[p.length - 1] > topDisk) {
+                    movesMessage += `Possible move: disk ${topDisk} from peg ${peg} to peg ${index + 1} <br>`;
                 } 
             });
-            
+            $('#gameMessage').html(movesMessage);
         };
 
         this.checkWinner = function() {
-            //
-            //There should be a function `checkWinner` that checks to see if the player has won 
-            // the game. You win the game by putting all the discs back in the original order but 
-            // on a new peg. As a part of this function, you MUST use the `reduce` function at least 
-            // once. As a helpful hint, we suggest that you test this function with only 3 pegs and 3 
-            // discs on the board as it will take significantly less moves to "win".
-
             this.board.map(peg => {
                 if (peg.length > 0) {
                     peg.reduce((sum, pegAmount) => sum + pegAmount) === this.winningSum ? this.win = true : null;
@@ -86,12 +79,9 @@ $(document).ready(function() {
             this.winningSum = 0;
             this.createBoard();
             $('#board').html(this.printBoard());    
-            $('#gameMessage').text("Make a move");
+            $('#gameMessage').text('Make a move!');
         };
     };
-
-
-    var game;
 
     $('#startGame').on('click', function(event) {
         const pegs = parseInt($('#pegs').val());
@@ -99,26 +89,57 @@ $(document).ready(function() {
         game = new Gameboard(disks, pegs);
         game.gameInit();
         $('#welcomeArea').hide();
+        $('#gameButtons').show();
+        $('#hintArea').show();
+        $('#gameArea').show();
     });
 
     $('#moveDisk').on('click', function(event) {
-        const oldPeg = parseInt($('#oldPeg').val());
-        const newPeg = parseInt($('#newPeg').val());
-        game.moveDisk(oldPeg, newPeg);
-        game.checkWinner();
-        if (game.win === true) {
-            console.log("you win!");
+        
+        try {
+            let oldPeg = $('#oldPeg').val();
+            let newPeg = $('#newPeg').val();
+
+            if (oldPeg.length < 1 || newPeg.length < 1) throw `
+                Please enter an original peg and new peg location.`;
+            if (!(parseInt(oldPeg) >= 1 && parseInt(oldPeg) <= game.pegs)) throw `
+                Please enter an original peg number between 1 and ${game.pegs}`
+            if (!(parseInt(newPeg) >= 1 && parseInt(newPeg) <= game.pegs)) throw `
+                Please enter an original peg number between 1 and ${game.pegs}`   
+
+            oldPeg = parseInt(oldPeg);
+            newPeg = parseInt(newPeg);
+        
+            game.moveDisk(oldPeg, newPeg);
+            game.checkWinner();
+
+            if (game.win === true) {
+                $('#gameMessage').text(`Congratulations - you won in ${game.moves} moves.`);
+            }
+
+            $('#playerMoves').text(`Game moves: ${game.moves}`);                     
+        } catch(err) {
+            $('#gameMessage').text(err);
         }
     });
 
     $('#getHint').on('click', function(event) {
-        const hintPeg = parseInt($('#hintPeg').val());
-        game.possibleMoves(hintPeg);
+        try {
+            let hintPeg = $('#hintPeg').val();
+
+            if (hintPeg.length < 1) throw `
+                Please enter a hint peg.`;
+            if (!(parseInt(hintPeg) >= 1 && parseInt(hintPeg) <= game.pegs)) throw `
+                Please enter an hint peg number between 1 and ${game.pegs}`
+
+            hintPeg = parseInt(hintPeg);
+            game.possibleMoves(hintPeg);
+        } catch(err) {
+            $('#gameMessage').text(err);
+        }
     });
     
 });
-
-// const game = new Gameboard(3, 3);
 
 
 // game play:
@@ -126,7 +147,10 @@ $(document).ready(function() {
 // player submits a move, check for move validity
 // if valid execute move, print board, and check for win.  If win, display win message and reset (init) game.
 // if invalid,display invalid move message
-// at any point if win === false (game active), player can request possible moves (execute possibleMoves)
+// at any point player can request possible moves for a peg (execute possibleMoves)
+
+
+// const game = new Gameboard(3, 3);
 
 // game.createBoard();
 // game.printBoard();
@@ -147,3 +171,5 @@ $(document).ready(function() {
 // game.moveDisk(1, 2);
 // game.checkWinner();
 // game.possibleMoves(3);
+
+
