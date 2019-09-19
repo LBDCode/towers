@@ -61,7 +61,6 @@ $(document).ready(function() {
             let movesMessage = '';
             
             let moves = this.board.filter(function(p, index) { 
-                return p.length > 0
                 // if (topDisk === undefined) {
                 //     movesMessage = `There are no disks on peg ${peg}.  No moves possible.`;
                 // } else if (p.length === 0 || p[p.length - 1] > topDisk) {
@@ -75,11 +74,13 @@ $(document).ready(function() {
 
         this.checkWinner = function() {
             // refactored reduce method
-            this.board.map(peg => {
-                if (peg.length === this.disks) {
-                    this.win = peg.reduce((sum, pegAmount) => sum + pegAmount) === this.winningSum;
-                }
+            let check = this.board.map(peg => {
+                // if (peg.length === this.disks) {
+                    console.log(peg);
+                    // peg.reduce((sum, pegAmount) => sum + pegAmount);
+                // }
             });
+            console.log(`check ${check}`);
         };
 
         this.gameInit = function() {
