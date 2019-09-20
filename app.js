@@ -55,22 +55,38 @@ $(document).ready(function() {
             }
         }; 
 
-        this.possibleMoves = function(peg) {
+        this.possibleMoves = function(pegStart, pegEnd) {
             // refactor filter method
-            const topDisk = this.board[peg - 1][this.board[peg - 1].length - 1];
+            // const topDisk = this.board[peg - 1][this.board[peg - 1].length - 1];
+            let disc = pegStart[pegStart.length - 1];
             let movesMessage = '';
             
-            let moves = this.board.filter(function(p, index) { 
-                // if (topDisk === undefined) {
-                //     movesMessage = `There are no disks on peg ${peg}.  No moves possible.`;
-                // } else if (p.length === 0 || p[p.length - 1] > topDisk) {
-                //     movesMessage += `Possible move: disk ${topDisk} from peg ${peg} to peg ${index + 1} <br>`;
-                // } 
+            let moves = this.board.filter(function(peg) { 
+                return peg.length === 0 || disc < peg[peg.length - 1];
             });
+            return moves.includes(pegEnd);
             console.log(moves);
             
             $('#gameMessage').html(movesMessage);
         };
+
+        // Libby Original Code
+        // this.possibleMoves = function(peg) {
+        //     // refactor filter method
+        //     const topDisk = this.board[peg - 1][this.board[peg - 1].length - 1];
+        //     let movesMessage = '';
+            
+        //     let moves = this.board.filter(function(p, index) { 
+        //         // if (topDisk === undefined) {
+        //         //     movesMessage = `There are no disks on peg ${peg}.  No moves possible.`;
+        //         // } else if (p.length === 0 || p[p.length - 1] > topDisk) {
+        //         //     movesMessage += `Possible move: disk ${topDisk} from peg ${peg} to peg ${index + 1} <br>`;
+        //         // } 
+        //     });
+        //     console.log(moves);
+            
+        //     $('#gameMessage').html(movesMessage);
+        // };
 
         this.checkWinner = function() {
             // refactored reduce method
